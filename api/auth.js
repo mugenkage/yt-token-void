@@ -1,12 +1,16 @@
-export default function handler(req, res) {
-  const params = new URLSearchParams({
-    client_id: process.env.GOOGLE_CLIENT_ID,
-    redirect_uri: process.env.REDIRECT_URI,
-    response_type: 'code',
-    scope: 'https://www.googleapis.com/auth/youtube',
-    access_type: 'offline',
-    prompt: 'consent',
-  });
+const { google } = require("googleapis");
 
-  res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params}`);
-}
+const oauth2Client = new google.auth.OAuth2(
+  process.env.CLIENT_ID,
+  process.env.CLIENT_SECRET,
+  process.env.REDIRECT_URI
+);
+
+module.exports = function handler(req, res) {
+  const authUrl = oauth2Client.generateAuthUrl({
+    access_type: "offline",
+    scope: ["https://www.googleapis.com/auth/youtube.upload"],
+    prompt: "consent",
+  });
+  res.redirect(authUrl);
+};
